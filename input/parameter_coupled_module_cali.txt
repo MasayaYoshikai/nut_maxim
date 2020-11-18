@@ -1,0 +1,135 @@
+&Calc_settings
+
+! growth_calc: true for growth calculation, false for no growth
+! mort_switch: 1 for mortality on, 0 for mortality off
+growth_calc      = .true.
+jra55_use_switch = 1
+flux_calculation = 0
+n_spe            = 2
+mort_switch      = 1
+/
+
+&File_names
+
+! --- For Ishigaki
+! jra55_timezone = 9
+! jra55_lat = 24.48
+! Fn_jra55 = './input/Meteorological_data/JRA-55/ishigaki_2014.csv'
+
+! --- For Aklan
+jra55_timezone = 8
+jra55_lat = 11.70
+Fn_jra55 = './input/Meteorological_data/JRA-55/aklan_2014.csv'
+
+Fn_forest_out          = './output/CASE_CALIB/forest_SALT.txt'
+Fn_forest2_out         = './output/CASE_CALIB/forest2_SALT.csv'
+Fn_monitor_tree_out    = './output/CASE_CALIB/monitor_tree_SALT.csv'
+Fn_monitor_biomass_out = './output/CASE_CALIB/monitor_biomass_SALT.csv'
+Fn_monitor_plot_out    = './output/CASE_CALIB/monitor_plot_SALT.csv'
+/
+
+&Atmospheric_parameters
+
+o2air = 210.0d0
+co2air = 410.0d0
+/
+
+&Soil_parameters
+
+ground_elev = 0.2d0
+soilresis   = 500.0d0
+albsoi_vis  = 0.10d0
+albsoi_nir  = 0.20d0
+hksat       = 0.00231d0
+moist       = 0.99d0
+bsw         = 5.3d0
+psisat      = -0.00143d0
+soil_t      = 298.15d0
+sal_ini     = SALT.0d0
+din_ini     = 0.400d0
+dip_ini     = 0.0045d0
+/
+
+&Waterflux_parameters
+
+flux_fw = 0.25d0
+din_fw  = 0.15d0
+dip_fw  = 1.0d0
+sal_sw  = 33.0d0
+din_sw  = 0.0005d0
+dip_sw  = 1.0000d0
+/
+
+&PFT_parameters
+
+rhol_vis = 0.28d0, 0.28d0
+rhol_nir = 0.45d0, 0.45d0
+taul_vis = 0.10d0, 0.10d0
+taul_nir = 0.25d0, 0.25d0
+emleaf   = 0.98d0
+xl       = 0.25d0, 0.25d0
+/
+
+&Root_parameters
+
+root_filter     = 0.9d0,      0.99d0
+root_resist     = 20.0d0,     30.0d0
+root_density    = 310000.0d0, 310000.0d0
+root_radius     = 0.00029d0,  0.00029d0
+root_depth      = 1.0d0
+fine_root_ratio = 0.25d0,     0.25d0
+/
+
+&Stem_parameters
+
+k_sap    = 1.5d0,   2.0d0
+wood_rho = 0.84d0,  0.76d0
+c_n_leaf = 40.0d0,  40.0d0
+c_n_stem = 285.0d0, 285.0d0
+c_n_root = 40.0d0,  40.0d0
+/
+
+&Leaf_parameters
+
+t_acclim     = 1, 1
+t_growth     = 27.0d0, 27.0d0
+t_home       = 32.0d0, 32.0d0
+optimum_dpai = 0.07d0, 0.07d0
+minlp        = -4.0d0, -4.0d0
+dleaf        = 0.05d0, 0.05d0
+gs_max       = 1.5d0,  1.5d0
+vcmaxpft     = 80.0d0, 80.0d0
+iota         = 15.0d0, 15.0d0
+/
+
+&Metabolic_parameters
+
+grow_resp         = 0.25d0,     0.25d0
+main_resp_stem    = 0.000075d0, 0.000075d0
+main_resp_root    = 0.01d0,     0.01d0
+root_turn         = 0.0009d0,   0.0009d0
+coarse_root_turn  = 0.0003d0,   0.0003d0
+leaf_turn         = 0.0024d0,   0.0013d0
+leaf_resorp       = 0.50d0,     0.50d0
+stock_trunk_ratio = 0.05d0,     0.05d0
+/
+
+&Mortality_parameters
+
+mort_d1   = 0.01d0, 0.01d0
+mort_c_d2 = 0.05d0, 0.05d0
+mort_c_d3 = 20.0d0, 20.0d0
+/
+
+&Allometric_parameters
+
+crown_a  = 0.438d0,  1.4206d0
+crown_b  = 2.7621d0, 7.0222d0
+tree_h_a = 43.307d0, 33.344d0
+tree_h_b = 0.738d0,  0.5155d0
+pr_s_a   = -1.757d0, 0.0d0
+pr_s_b   = -3.175d0, 0.0d0
+pr_h_a   = 2.709d0,  0.0d0
+pr_h_b   = 0.503d0,  0.0d0
+pr_d     = 0.032d0,  0.0d0
+/
