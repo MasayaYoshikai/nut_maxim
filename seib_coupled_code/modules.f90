@@ -275,6 +275,7 @@ integer,allocatable :: seed(:)
   character*128 :: Fn_monitor_tree_out
   character*128 :: Fn_monitor_biomass_out
   character*128 :: Fn_monitor_plot_out
+  character*128 :: Fn_diurnal
 
   ! Atmospheric parameters
 
@@ -382,7 +383,8 @@ integer,allocatable :: seed(:)
            growth_calc, jra55_use_switch, flux_calculation, n_spe, mort_switch
   namelist /File_names/&
            jra55_timezone, jra55_lat, Fn_jra55, Fn_forest_out, &
-           Fn_forest2_out, Fn_monitor_tree_out, Fn_monitor_biomass_out, Fn_monitor_plot_out
+           Fn_forest2_out, Fn_monitor_tree_out, Fn_monitor_biomass_out, &
+           Fn_monitor_plot_out, Fn_diurnal
   namelist /Atmospheric_parameters/&
            o2air, co2air
   namelist /Soil_parameters/&

@@ -148,6 +148,9 @@ SUBROUTINE main_loop ( LAT, LON, GlobalZone, YearMaxClimate, YearMaxCO2, &
    open ( File_no(20), file = Fn_monitor_tree_out )
    open ( File_no(21), file = Fn_monitor_biomass_out )
    open ( File_no(23), file = Fn_monitor_plot_out )
+   if (growth_calc .eqv. .false.) then  ! Only for no-growth calculation
+      open ( File_no(24), file = Fn_diurnal )
+   end if
 !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< MY:add
 
 !_____________ Initialize various counters for the daily simulation loop

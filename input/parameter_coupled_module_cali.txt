@@ -2,7 +2,7 @@
 
 ! growth_calc: true for growth calculation, false for no growth
 ! mort_switch: 1 for mortality on, 0 for mortality off
-growth_calc      = .true.
+growth_calc      = .false.
 jra55_use_switch = 1
 flux_calculation = 0
 n_spe            = 2
@@ -12,20 +12,21 @@ mort_switch      = 1
 &File_names
 
 ! --- For Ishigaki
-! jra55_timezone = 9
-! jra55_lat = 24.48
-! Fn_jra55 = './input/Meteorological_data/JRA-55/ishigaki_2014.csv'
+jra55_timezone = 9
+jra55_lat = 24.48
+Fn_jra55 = './input/Meteorological_data/JRA-55/ishigaki_2014.csv'
 
 ! --- For Aklan
-jra55_timezone = 8
-jra55_lat = 11.70
-Fn_jra55 = './input/Meteorological_data/JRA-55/aklan_2014.csv'
+! jra55_timezone = 8
+! jra55_lat = 11.70
+! Fn_jra55 = './input/Meteorological_data/JRA-55/aklan_2014.csv'
 
 Fn_forest_out          = './output/CASE_CALIB/forest_SALT.txt'
 Fn_forest2_out         = './output/CASE_CALIB/forest2_SALT.csv'
 Fn_monitor_tree_out    = './output/CASE_CALIB/monitor_tree_SALT.csv'
 Fn_monitor_biomass_out = './output/CASE_CALIB/monitor_biomass_SALT.csv'
 Fn_monitor_plot_out    = './output/CASE_CALIB/monitor_plot_SALT.csv'
+Fn_diurnal             = './output/CASE_CALIB/diurnal_SALT.csv'
 /
 
 &Atmospheric_parameters
@@ -97,8 +98,8 @@ t_home       = 32.0d0, 32.0d0
 optimum_dpai = 0.07d0, 0.07d0
 minlp        = -4.0d0, -4.0d0
 dleaf        = 0.05d0, 0.05d0
-gs_max       = 1.5d0,  1.5d0
-vcmaxpft     = 80.0d0, 80.0d0
+gs_max       = 1.0d0,  1.0d0
+vcmaxpft     = 80.0d0, 50.0d0
 iota         = 15.0d0, 15.0d0
 /
 

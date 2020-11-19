@@ -6,7 +6,8 @@ module mod_spac_photosynthesis
   !
   ! !Uses:
   use mod_param
-  use data_structure, only : Max_hgt, STEP
+  use data_structure, only : Max_hgt, STEP, File_no, Fn_diurnal, growth_calc
+  use time_counter, only : year
   use vegi_status_current1, only : monitor, bottom_layer_monitor, top_layer_monitor, &
                                    gs_monitor, an_top_monitor, an_bot_monitor, &
                                    et_top_monitor, et_bot_monitor
@@ -213,6 +214,7 @@ module mod_spac_photosynthesis
     rgas         => universal%rgas              , &  ! Universal gas constant (J/K/mol)
     denh2o       => universal%denh2o            , &  ! Water density (kg/m3)
     mmh2o        => universal%mmh2o             , &  ! Molecular mass of water (kg/mol)
+    tfrz         => universal%tfrz              , &  ! Freezing point of water (K)
     mmdry        => universal%mmdry             , &  ! Molecular mass of dry air (kg/mol)
     cpd          => universal%cpd               , &  ! Specific heat of dry air at constant pressure (J/kg/K)
     cpw          => universal%cpw               , &  ! Specific heat of water vapor at constant pressure (J/kg/K)
@@ -784,6 +786,22 @@ module mod_spac_photosynthesis
              an_bot_monitor = an(bottom_layer_monitor)
              et_top_monitor = etflux(top_layer_monitor)
              et_bot_monitor = etflux(bottom_layer_monitor)
+          end if
+       end if
+
+       !---------------------------------------------------------------------
+       ! Diurnal dynamics (only for no-growth calculation)
+       !---------------------------------------------------------------------
+
+       if (growth_calc .eqv. .false.) then
+          if (no == monitor .and. year == 3) then
+             write(File_no(24), '(1(i4,a), 5(f12.5,a))') &
+             hour_of_year                            , ',', &  ! Hour of year
+             par_dir+par_dif                         , ',', &  ! PAR at canopy top (umol photon/m2 ground/s)
+             tair-tfrz                               , ',', &  ! Air temperature (degree C)
+             eair                                    , ',', &  ! Vapor pressure in air (Pa)
+             gs                                      , ',', &  ! Stand-level stomatal conductance (mol H2O/m2/s)
+             an(top_layer_monitor)                             ! Leaf net photosynthesis at canopy top (umol CO2/m2 leaf/s)
           end if
        end if
 

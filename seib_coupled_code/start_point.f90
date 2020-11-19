@@ -183,6 +183,7 @@ PROGRAM start_point
     write(*,*) 'Fn_monitor_tree_out', Fn_monitor_tree_out
     write(*,*) 'Fn_monitor_biomass_out', Fn_monitor_biomass_out
     write(*,*) 'Fn_monitor_plot_out', Fn_monitor_plot_out
+    write(*,*) 'Fn_diurnal', Fn_diurnal
     write(*,*) 'o2air, co2air', o2air, co2air
     write(*,*) 'ground_elev, soilresis', ground_elev, soilresis
     write(*,*) 'albsoi_vis, albsoi_nir', albsoi_vis, albsoi_nir
