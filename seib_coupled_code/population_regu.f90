@@ -284,7 +284,7 @@ Do j = 1, Dived
       tree_h(new) = real(height(new)) * STEP + 1.3d0
       crown_diameter(new) = 0.5
       crown_area(new) = PI * (crown_diameter(new)/2)**2
-      mass_leaf(new) = 100.0
+      mass_leaf(new) = 2.0 * crown_area(new) / SLA(pft(new))  ! <= Value specified for the calculation is LAI.
       mass_trunk(new) = (0.051d0 * wood_rho(pft(new)) * tree_h(new) &
                         *(dbh_sapwood(new)*100.0d0 + dbh_heartwood(new)*100.0d0)**2) &
                         * 1000.0d0
@@ -326,7 +326,6 @@ Do j = 1, Dived
    potential_sapflow(new) = 0.1d0
    potential_stand_et(new) = 0.2d0
    gpp_bottom(new) = 0.0d0
-   net_production(new) = 0.0d0
    crown_limit_flag(new) = .false.
 
 !   ! Initial value of leaf temperature
@@ -899,21 +898,21 @@ SUBROUTINE mortality ()
    ! bottom height of forest layer no 2,3,4,5 (m)
    !(top    height of forest layer no 1,2,3,4 (m) )
 !   real,dimension(4),parameter::Layer_top = (/1.3, 15.0, 25.0, 36.0/) ! >>>>>>>>> MY:rm
-   real,dimension(4),parameter::Layer_top = (/3.0, 6.0, 12.0, 15.0/) ! >>>>>>>>> MY:add for Fukido
+   real,dimension(4),parameter::Layer_top = (/3.0, 8.0, 15.0, 20.0/) ! >>>>>>>>> MY:add for mangroves
 
    !Threshold fraction of crown layer overlapping to declare 'crowded layer' (frac)
    real,parameter::Frac_crowded         = 1.00
 
    !Threshold Tree height to have possibility to form gap (m)
 !   real,parameter::Thres_height_GapForm = 25.0 ! >>>>>>>>> MY:rm
-   real,parameter::Thres_height_GapForm = 9.0 ! >>>>>>>>> MY:add for Fukido
+   real,parameter::Thres_height_GapForm = 9.0 ! >>>>>>>>> MY:add for mangroves
 
    !Fraction of gap formation when large tree die
    real,parameter::Frac_GapForm         = 0.20
 
    !Fraction of gap formation when large tree die (m)
 !   real,parameter::Dist_GapEntangled    = 11.3 ! >>>>>>>>> MY:rm
-   real,parameter::Dist_GapEntangled    = 5.0 ! >>>>>>>>> MY:add for Fukido
+   real,parameter::Dist_GapEntangled    = 5.0 ! >>>>>>>>> MY:add for mangroves
 
    ! for tree layer no 1,2,3,4,5 (m)
    real,dimension(5),parameter::Frac_GapEntangled = (/0.0, 0.3, 0.6, 0.8, 0.4/)
@@ -930,11 +929,11 @@ SUBROUTINE mortality ()
    real mort_total   !mortality as a result of above all factors
 
 !From embedding FORMIX3
-!   !Crown area for each cohort (m2)
-!   real   ,dimension((int(0.99999+Max_loc/20.0))**2, 5)::cohort_ca
-!   !crowded flag for each cohort
-!   logical,dimension((int(0.99999+Max_loc/20.0))**2, 5)::cohort_crowded
-!   integer,dimension(Max_no)::id_location
+   !Crown area for each cohort (m2)
+   real   ,dimension((int(0.99999+Max_loc/20.0))**2, 5)::cohort_ca
+   !crowded flag for each cohort
+   logical,dimension((int(0.99999+Max_loc/20.0))**2, 5)::cohort_crowded
+   integer,dimension(Max_no)::id_location
    !Frag wheather trees are crowded
    logical,dimension(Max_no)::tree_crowded
    !crown layer numner that each tree belongs
@@ -952,9 +951,9 @@ real    frac_overlap_sum
 real    cosine1, cosine2
 
 !_____________ Determine cohort structure
-!   cohort_ca      (:,:) = 0.0     !(location,layer) crown area for each cohort (m2)
-!   cohort_crowded (:,:) = .false. !(location,layer) crowded flag for each cohort
-!   id_location    (:)   = 0       !(tree_number)    location number that each tree belongs
+   cohort_ca      (:,:) = 0.0     !(location,layer) crown area for each cohort (m2)
+   cohort_crowded (:,:) = .false. !(location,layer) crowded flag for each cohort
+   id_location    (:)   = 0       !(tree_number)    location number that each tree belongs
 
    !determine height class for each tree
    Do no=1, Max_no
@@ -1035,32 +1034,32 @@ real    cosine1, cosine2
 
    End do
 
-!   Do no=1, Max_no
-!   If ( tree_exist(no) ) then
-!
-!      id_location(no) = 1+int(bole_x(no)/20) + int(0.99999+Max_loc/20.0) * int(bole_y(no)/20)
-!
-!      x = height(no)*STEP+1.3 !x: tree height (m)
-!      if     (x<Layer_top(1)) then ;id_layer(no) = 1
-!      elseif (x<Layer_top(2)) then ;id_layer(no) = 2
-!      elseif (x<Layer_top(3)) then ;id_layer(no) = 3
-!      elseif (x<Layer_top(4)) then ;id_layer(no) = 4
-!      else                         ;id_layer(no) = 5
-!      endif
-!
-!      cohort_ca (id_location(no),id_layer(no)) = &
-!      cohort_ca (id_location(no),id_layer(no)) + &
-!      ( 25*(dbh_heartwood(no)+dbh_sapwood(no)) )**2 * PI / 4.0
-!      !crown_area(no)�̑������ɁA�|�e���V�����̎����f�ʖʐς��g����
-!
-!   End if
-!   End do
-!
-!   Do i=1, (int(0.99999+Max_loc/20.0))**2 !for each location
-!   Do j=1, 5                              !for each layer
-!      if ( cohort_ca(i,j)/400 > Frac_crowded ) cohort_crowded(i,j)=.true.
-!   End do
-!   End do
+   Do no=1, Max_no
+   If ( tree_exist(no) ) then
+
+      id_location(no) = 1+int(bole_x(no)/20) + int(0.99999+Max_loc/20.0) * int(bole_y(no)/20)
+
+      x = height(no)*STEP+1.3 !x: tree height (m)
+      if     (x<Layer_top(1)) then ;id_layer(no) = 1
+      elseif (x<Layer_top(2)) then ;id_layer(no) = 2
+      elseif (x<Layer_top(3)) then ;id_layer(no) = 3
+      elseif (x<Layer_top(4)) then ;id_layer(no) = 4
+      else                         ;id_layer(no) = 5
+      endif
+
+      cohort_ca (id_location(no),id_layer(no)) = &
+      cohort_ca (id_location(no),id_layer(no)) + &
+      ( 25*(dbh_heartwood(no)+dbh_sapwood(no)) )**2 * PI / 4.0
+      !crown_area(no)�̑������ɁA�|�e���V�����̎����f�ʖʐς��g����
+
+   End if
+   End do
+
+   Do i=1, (int(0.99999+Max_loc/20.0))**2 !for each location
+   Do j=1, 5                              !for each layer
+      if ( cohort_ca(i,j)/400 > Frac_crowded ) cohort_crowded(i,j)=.true.
+   End do
+   End do
 
 !_____________ Determine trees to be die 1
    death_list(:) = .false.
@@ -1085,37 +1084,8 @@ if ( tree_exist(no) .and. age(no)>1 ) then
          mort_greff = mort_greff * M4(p)
 
          !When crowded
-!         if ( cohort_crowded(id_location(no),id_layer(no)) ) mort_greff=M5(p)
-!         if (tree_crowded(no)) mort_greff=M5(p)
-
-!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MY:add
-
-      ! for mangroves
-      ! *** Crowded effects are not considered yet.
-
-      case (7, 8)
-
-         ! Based on Falster et al. (2017)
-         ! Muliplying
-
-         mort_greff = mort_d1(p) + mort_c_d2(p) * &
-                      exp(-1.0d0 * mort_c_d3(p) * net_production(no) * 1.e-03 / la(no))
-
-         ! Prevent death of young trees due to low growth efficiency
-
-         if (age(no) < 10) then
-            mort_greff = 0.0d0
-         end if
-
-         ! Switch of mortality related to growth efficiency (1: ON, 0: OFF)
-
-         if (mort_switch == 0) then
-
-             mort_greff = mort_d1(p)
-
-         end if
-
-!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< MY:add
+         if ( cohort_crowded(id_location(no),id_layer(no)) ) mort_greff=M5(p)
+         if (tree_crowded(no)) mort_greff=M5(p)
 
       !other woody PFTs
       case default
@@ -1133,6 +1103,20 @@ if ( tree_exist(no) .and. age(no)>1 ) then
          !x      = max(0.001, x)
          !mort_greff = 1.0 / ( 1.0 + M1(p) * ( x ** M2(p) ) )
 
+!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MY:add
+
+         ! Switch of mortality related to growth efficiency (1: ON, 0: OFF)
+         if (mort_switch == 0) then
+            mort_greff = 0.0d0
+         end if
+
+         ! When crowded
+
+         if ( cohort_crowded(id_location(no),id_layer(no)) ) mort_greff=max(M5(p), mort_greff)
+         if (tree_crowded(no)) mort_greff=max(M5(p), mort_greff)
+
+!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< MY:add
+
    End select
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MY:rm No temperature effects
@@ -1144,34 +1128,32 @@ if ( tree_exist(no) .and. age(no)>1 ) then
 !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< MY:rm: No temperature effects
 
    !mortality 3: mortality by other factors
-   x = mass_leaf(no) + mass_trunk(no) + mass_root(no) + mass_stock(no) + mass_available(no)
+!   x = mass_leaf(no) + mass_trunk(no) + mass_root(no) + mass_stock(no) + mass_available(no)
 
-!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MY:rm
-!   if ( height(no)-bole(no)<=2 .and. age(no)>3   ) mort_etc=0.1
-!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< MY:rm
+   if ( height(no)-bole(no)<=2 .and. age(no)>3   ) mort_etc=0.1
    if ( dbh_heartwood(no)+dbh_sapwood(no) > 1.00 ) mort_etc=0.1
    if ( age(no) >= AGE_max(p)                    ) mort_etc=0.1
 
-!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MY:rm
-!   Select case (Life_type(p))
-!      case (2)
-!         !Larch
-!         if ( mort_regu1(no)<0.0 .and. age(no)>3 ) mort_etc=mort_etc + mort_greff*9
-!      case (6)
-!         !Other Siberian woody PFTs
-!         if ( mort_regu1(no)<0.0 .and. age(no)>3 ) mort_etc=mort_etc + mort_greff*9
-!      case (5)
-!         !African trees
-!         if ( mort_regu1(no)<0.0 .and. age(no)>3 ) mort_etc=mort_etc + mort_greff*9
-!      case default
-!         !Other woody PFTs
-!         if ( mort_regu1(no)<0.0 .and. age(no)>3 ) mort_etc=1.0
-!   End Select
-!
-!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< MY:rm
+   Select case (Life_type(p))
+      case (2)
+         !Larch
+         if ( mort_regu1(no)<0.0 .and. age(no)>3 ) mort_etc=mort_etc + mort_greff*9
+      case (6)
+         !Other Siberian woody PFTs
+         if ( mort_regu1(no)<0.0 .and. age(no)>3 ) mort_etc=mort_etc + mort_greff*9
+      case (5)
+         !African trees
+         if ( mort_regu1(no)<0.0 .and. age(no)>3 ) mort_etc=mort_etc + mort_greff*9
+      case default
+         !Other woody PFTs
+         if ( mort_regu1(no)<0.0 .and. age(no)>3 ) mort_etc=1.0
+   End Select
 
    !Sum up all mortality components, and calculate probabilty of death
    mort_total   = min(1.0, mort_greff + mort_lim + mort_etc)
+
+   !Trees gradually die if its annual NPP per crown cross-section area is less than 10gDM/yr/m2
+   if ( mort_regu1(no) / crown_area(no) < 10.0 .and. age(no) > 3 ) mort_total=0.05
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MY:add
 
@@ -1288,7 +1270,6 @@ END DO
       potential_stand_et(no) = 0.2d0
       tree_h(no) = 0.0d0
       gpp_bottom(no) = 0.0d0
-      net_production(no) = 0.0d0
       crown_limit_flag(no) = .false.
 !      tleaf_all(no,:) = 0.0d0
 !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< MY:add

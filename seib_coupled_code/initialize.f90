@@ -89,7 +89,6 @@ SUBROUTINE init_value (W_fi, tmp_air, tmp_soil, prec)
   potential_stand_et(:) = 0.2d0
   tree_h(:) = 0.0d0
   gpp_bottom(:) = 0.0d0
-  net_production(:) = 0.0d0
   crown_limit_flag(:) = .false.
 !  tleaf_all(:,:) = 0.0d0
 

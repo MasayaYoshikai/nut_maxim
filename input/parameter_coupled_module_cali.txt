@@ -2,7 +2,7 @@
 
 ! growth_calc: true for growth calculation, false for no growth
 ! mort_switch: 1 for mortality on, 0 for mortality off
-growth_calc      = .false.
+growth_calc      = .true.
 jra55_use_switch = 1
 flux_calculation = 0
 n_spe            = 2
@@ -12,14 +12,14 @@ mort_switch      = 1
 &File_names
 
 ! --- For Ishigaki
-jra55_timezone = 9
-jra55_lat = 24.48
-Fn_jra55 = './input/Meteorological_data/JRA-55/ishigaki_2014.csv'
+! jra55_timezone = 9
+! jra55_lat = 24.48
+! Fn_jra55 = './input/Meteorological_data/JRA-55/ishigaki_2014.csv'
 
 ! --- For Aklan
-! jra55_timezone = 8
-! jra55_lat = 11.70
-! Fn_jra55 = './input/Meteorological_data/JRA-55/aklan_2014.csv'
+jra55_timezone = 8
+jra55_lat = 11.70
+Fn_jra55 = './input/Meteorological_data/JRA-55/aklan_2014.csv'
 
 Fn_forest_out          = './output/CASE_CALIB/forest_SALT.txt'
 Fn_forest2_out         = './output/CASE_CALIB/forest2_SALT.csv'
@@ -47,7 +47,7 @@ bsw         = 5.3d0
 psisat      = -0.00143d0
 soil_t      = 298.15d0
 sal_ini     = SALT.0d0
-din_ini     = 0.400d0
+din_ini     = 0.200d0
 dip_ini     = 0.0045d0
 /
 
@@ -113,13 +113,6 @@ coarse_root_turn  = 0.0003d0,   0.0003d0
 leaf_turn         = 0.0024d0,   0.0013d0
 leaf_resorp       = 0.50d0,     0.50d0
 stock_trunk_ratio = 0.05d0,     0.05d0
-/
-
-&Mortality_parameters
-
-mort_d1   = 0.01d0, 0.01d0
-mort_c_d2 = 0.05d0, 0.05d0
-mort_c_d3 = 20.0d0, 20.0d0
 /
 
 &Allometric_parameters

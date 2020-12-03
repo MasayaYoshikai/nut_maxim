@@ -358,12 +358,6 @@ integer,allocatable :: seed(:)
   real(8), dimension(PFT_no) :: leaf_resorp         ! Nutrient resorption from Leaf (fraction)
   real(8), dimension(PFT_no) :: stock_trunk_ratio   ! Desirable stock / trunk ratio (g stock/g trunk)
 
-  ! Mortality parameters
-
-  real(8), dimension(PFT_no) :: mort_d1             ! Growth-independent mortality (year-1)
-  real(8), dimension(PFT_no) :: mort_c_d2           ! Maximum growth-dependent mortality (year-1)
-  real(8), dimension(PFT_no) :: mort_c_d3           ! Scaling coefficient for growth-dependent mortality (year m2 leaf/kg biomass)
-
   ! Tree allometric parameters
 
   real(8), dimension(PFT_no) :: crown_a             ! Tree crown allometric parameter
@@ -403,8 +397,6 @@ integer,allocatable :: seed(:)
   namelist /Metabolic_parameters/&
            grow_resp, main_resp_stem, main_resp_root, root_turn, coarse_root_turn, &
            leaf_turn, leaf_resorp, stock_trunk_ratio
-  namelist /Mortality_parameters/&
-           mort_d1, mort_c_d2, mort_c_d3
   namelist /Allometric_parameters/&
            crown_a, crown_b, tree_h_a, tree_h_b, &
            pr_s_a, pr_s_b, pr_h_a, pr_h_b, pr_d
@@ -537,7 +529,6 @@ MODULE vegi_status_current1
   real(8), dimension(Max_no) :: potential_stand_et   ! Maximum transpiration rate at a day under normal weather condition (mol H2O/tree/s)
   real(8), dimension(Max_no) :: tree_h               ! Tree height (m)
   real(8), dimension(Max_no) :: gpp_bottom           ! Gross production of 1 m2 of leaves at crown bottom layer (g/m2 leaf)
-  real(8), dimension(Max_no) :: net_production       ! Net biomass production after respiration and turnover (g/year)
   logical, dimension(Max_no) :: crown_limit_flag     ! Flag of crown suppression by neighbor trees (true: suppressed, false: not suppressed)
 !  real(8), dimension(Max_no, Max_hgt) :: tleaf_all  ! Leaf temperature for all trees (K)
 

@@ -265,16 +265,6 @@ DO counter = counter_begin, counter_end
       mort_regu1(:) = 0.0 !NPP annual (g / individual)
       mort_regu2(:) = 0.0 !average leaf area of last year (m2/day) {update on: growth_wood}
       mort_regu4(:) = 0.0 !stem diameter increament in last year (m year-1)
-
-!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MY:add
-
-      ! Initialize net biomass production (g/year) at
-      ! first day of the year
-
-      net_production(:) = 0.0d0
-
-!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< MY:add
-
    endif
 
 !_____________ DAILY PSYSICAL PROCESSES
@@ -654,6 +644,7 @@ end if
    Max_no                          , &  ! Maximum number of individual stands
    tree_exist                      , &  ! Flag of tree presence
    pft                             , &  ! Species index (1: Rh, 2: Br)
+   age                             , &  ! Tree age (year: 1~)
    tree_h                          , &  ! Tree height (m)
    dbh_heartwood                   , &  ! Heartwood diameter (m)
    dbh_sapwood                     , &  ! Sapwood diameter (m)

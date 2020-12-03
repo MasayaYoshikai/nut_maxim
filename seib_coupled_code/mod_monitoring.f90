@@ -293,6 +293,7 @@ contains
     Max_no                        , &  ! Maximum number of individual stands
     tree_exist                    , &  ! Flag of tree presence
     pft                           , &  ! Species index (1: Rh, 2: Br)
+    age                           , &  ! Tree age (year: 1~)
     tree_h                        , &  ! Tree height (m)
     dbh_heartwood                 , &  ! Heartwood diameter (m)
     dbh_sapwood                   , &  ! Sapwood diameter (m)
@@ -325,7 +326,7 @@ contains
     real(8), intent(in) :: time_series_rad_dir(:), time_series_rad_dif(:)
     integer, intent(in) :: Fn1, Fn2, year, day_of_year, Max_loc, Max_hgt, Max_no
     logical, intent(in) :: tree_exist(:)
-    integer, intent(in) :: pft(:)
+    integer, intent(in) :: pft(:), age(:)
     real(8), intent(in) :: tree_h(:)
     real, intent(in)    :: dbh_heartwood(:), dbh_sapwood(:), mass_trunk(:)
     real, intent(in)    :: mass_coarse_root(:), mass_above_root(:), mass_leaf(:), mass_root(:)
@@ -370,6 +371,8 @@ contains
     do no = 1, Max_no
 
        if ( .not. tree_exist(no) ) cycle
+       if (age(no) <= 2) cycle  ! Ignore very small trees whose survival is not affected by tree density and production rate.
+       if (dbh_heartwood(no) + dbh_sapwood(no) <= 0.02) cycle  ! Ignore very small trees
 
        p = pft(no)
        tree_density_plot(p) = tree_density_plot(p) + 1.0d0                                        ! tree number
@@ -383,7 +386,7 @@ contains
 
     end do
 
-    ! For each species
+    ! Averaging for each species
 
     do p = 1, n_spe
        mean_tree_h(p) = mean_tree_h(p) / max(1.0d0, tree_density_plot(p))      ! m
@@ -395,7 +398,7 @@ contains
        above_root_biomass_plot(p) = (above_root_biomass_plot(p) / (real(Max_loc)**2.0d0)) * 10.0d0   ! kg/m2 -> Mg/ha
     end do
 
-    ! For tree density
+    ! Compute tree density
 
     do p = 1, n_spe
        tree_density_plot(p) = tree_density_plot(p) / (real(Max_loc)**2.0d0)   ! tree/m2

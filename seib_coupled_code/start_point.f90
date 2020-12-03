@@ -164,7 +164,6 @@ PROGRAM start_point
        read (unit = 2, nml = Stem_parameters)
        read (unit = 2, nml = Leaf_parameters)
        read (unit = 2, nml = Metabolic_parameters)
-       read (unit = 2, nml = Mortality_parameters)
        read (unit = 2, nml = Allometric_parameters)
     close (2)
 
@@ -226,9 +225,6 @@ PROGRAM start_point
     write(*,*) 'leaf_turn Rh, Br', leaf_turn(1), leaf_turn(2)
     write(*,*) 'leaf_resorp Rh, Br', leaf_resorp(1), leaf_resorp(2)
     write(*,*) 'stock_trunk_ratio Rh, Br', stock_trunk_ratio(1), stock_trunk_ratio(2)
-    write(*,*) 'mort_d1 Rh, Br', mort_d1(1), mort_d1(2)
-    write(*,*) 'mort_c_d2 Rh, Br', mort_c_d2(1), mort_c_d2(2)
-    write(*,*) 'mort_c_d3 Rh, Br', mort_c_d3(1), mort_c_d3(2)
     write(*,*) 'crown_a Rh, Br', crown_a(1), crown_a(2)
     write(*,*) 'crown_b Rh, Br', crown_b(1), crown_b(2)
     write(*,*) 'tree_h_a Rh, Br', tree_h_a(1), tree_h_a(2)

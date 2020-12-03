@@ -22,7 +22,7 @@
     !
     ! !Local variables:
     real(8), parameter :: crit_rad_dir = 0.0d0        ! Critical direct radiation at canopy top in a day (W/m2)
-    real(8), parameter :: crown_expand_rate = 1.05d0  ! Rate of crown diameter expansion (/year)
+    real(8), parameter :: crown_expand_rate = 1.1d0  ! Rate of crown diameter expansion (/year)
     integer :: no                                     ! Tree index
     integer :: hour                                   ! 0 - 23
     integer :: hour_of_year                           ! Hour of year
@@ -47,6 +47,7 @@
     real(8) :: new_dbh_sapwood                        ! New sapwood diameter after biomass increment (m)
     real(8) :: new_tree_h                             ! New tree height after biomass increment (m)
     real(8) :: crown_d_max                            ! Potential crown diameter based on allometric relation (m)
+    real(8) :: x, y                                   ! Useful variables
     !
     ! !Local outputs from stand-level SPAC-Photosynthesis model:
     integer :: n_leaf_layer                       ! Number of leaf layers
@@ -233,7 +234,7 @@
           mass_root(no) = max((mass_root(no) + d_root), 1.0d0)
           mass_stock(no) = max((mass_stock(no) + d_stock), 1.0d0)
        end if
-       net_production(no) = net_production(no) + d_leaf + d_root + d_stock
+       mort_regu1(no) = mort_regu1(no) + d_leaf + d_root + d_stock
 
        ! Zero-out
 
@@ -264,7 +265,7 @@
        ! Nutrient resorption from leaves to fall
        !---------------------------------------------------------------------
 
-       if (age(no) > 2) then ! age filter of turnover
+       if (age(no) >= 2) then ! age filter of turnover
 
           available_n = available_n + &
                         ((mass_leaf(no) * leaf_turn(pft(no)) * C_in_drymass / 12.0d0) &  ! Leaves to fall in a day (mol C/tree/day)
@@ -315,7 +316,7 @@
              mass_leaf(no) = mass_leaf(no) - mass_leaf(no) / n_leaf_layer
              n_leaf_layer = n_leaf_layer - 1
           end if
-          net_production(no) = net_production(no) - mass_leaf(no) / n_leaf_layer
+          mort_regu1(no) = mort_regu1(no) - mass_leaf(no) / n_leaf_layer
 
           if (n_leaf_layer < 1) then
              write(*,*) 'ERROR: no leaf layer after crown purge'
@@ -326,7 +327,7 @@
        ! Coarse root, leaf and fine root turnover
        !---------------------------------------------------------------------
 
-       if (age(no) > 2) then ! age filter of turnover
+       if (age(no) >= 2) then ! age filter of turnover
 
        call turnover ( &
                                             ! *** Input ***
@@ -372,7 +373,7 @@
           mass_root(no) = max((mass_root(no) + d_root), 1.0d0)
           mass_stock(no) = max((mass_stock(no) + d_stock), 1.0d0)
        end if
-       net_production(no) = net_production(no) + d_coarse_root + d_leaf + d_root + d_stock
+       mort_regu1(no) = mort_regu1(no) + d_coarse_root + d_leaf + d_root + d_stock
 
      end if ! For age filter of turnover
 
@@ -385,7 +386,7 @@
 
        ! When there is still available resource.
 
-       if (min(remaining_c, remaining_n) > 0.0d0) then
+       if (min(available_c, available_n) > 0.0d0) then
 
           !---------------------------------------------------------------------
           ! Reload to stock biomass
@@ -424,7 +425,7 @@
           if (growth_calc) then
              mass_stock(no) = mass_stock(no) + d_stock
           end if
-          net_production(no) = net_production(no) + d_stock
+          mort_regu1(no) = mort_regu1(no) + d_stock
 
           ! Zero-out
 
@@ -595,7 +596,7 @@
                 mass_above_root(no) = mass_above_root(no) + d_above_root
                 mass_stock(no) = mass_stock(no) + d_stock
              end if
-             net_production(no) = net_production(no) + d_coarse_root + d_above_root &
+             mort_regu1(no) = mort_regu1(no) + d_coarse_root + d_above_root &
                                   + d_leaf + d_root + d_stock + d_trunk
 
           !---------------------------------------------------------------------
@@ -727,7 +728,7 @@
                 mass_above_root(no) = mass_above_root(no) + d_above_root
                 mass_stock(no) = mass_stock(no) + d_stock
              end if
-             net_production(no) = net_production(no) + d_leaf + d_stock + d_trunk + d_above_root
+             mort_regu1(no) = mort_regu1(no) + d_leaf + d_stock + d_trunk + d_above_root
 
           end if
        end if
@@ -755,22 +756,14 @@
        ! See whether the crown is suppressed or not.
        ! Only trees larger than a certain size could be suppressed.
 
-       if (crown_d_max >= radius_limit(no) * 2.0d0 .and. &
-          (dbh_heartwood(no)+dbh_sapwood(no)) >= 0.03d0) then
-
-          if (.not. crown_limit_flag(no)) then
-             if (growth_calc) then
-                crown_diameter(no) = min(crown_diameter(no), radius_limit(no) * 2.0d0)
-                crown_area(no) = (crown_diameter(no) * 0.5d0) * (crown_diameter(no) * 0.5d0) * PI
-             end if
-          end if
+       if (crown_d_max >= radius_limit(no) * 2.0d0 .and. age(no) >= 2) then
 
           crown_limit_flag(no) = .true.  ! The crown is suppressed by the neighbor trees.
 
        end if
 
-       ! New crown diameter and area based on allometric relationship
        ! when the crown is not suppressed by the neighbor trees.
+       ! New crown diameter and area based on allometric relationship.
 
        if (.not. crown_limit_flag(no)) then  ! = .false.: The crown is not suppressed.
 
@@ -791,8 +784,9 @@
           if (crown_limit_flag(no)) then  ! = .true.: The crown is suppressed.
 
               if (growth_calc) then
-                 crown_diameter(no) = min(crown_d_max, crown_expand_rate * crown_diameter(no))  ! Potential crown diameter (m)
-                 crown_diameter(no) = min(crown_diameter(no), radius_limit(no) * 2.0d0)         ! New crown diameter based on expansion rate and space availability
+                 x = min(crown_d_max, crown_expand_rate * crown_diameter(no))  ! Potential crown diamter based on expansion rate (m)
+                 y = min(x, radius_limit(no) * 2.0d0)                          ! Potential crown diameter constrained by neighbor trees (m)
+                 crown_diameter(no) = max(crown_diameter(no), y)               ! Crown diamter never shrink
                  crown_area(no) = (crown_diameter(no) * 0.5d0) * (crown_diameter(no) * 0.5d0) * PI
               end if
 
@@ -803,6 +797,10 @@
        ! New leaf area per tree (m2 leaf/tree)
 
        la(no) = mass_leaf(no) * SLA(pft(no))
+
+       !update mort_regu2 (annumal mean of leaf area, m2/tree)
+
+       mort_regu2(no) = mort_regu2(no) + la(no)/Day_in_Year
 
 !write(*,*) 'trunk', mass_trunk(no), 'leaf', mass_leaf(no), 'root', mass_root(no), 'stock', mass_stock(no)
 
